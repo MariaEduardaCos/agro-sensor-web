@@ -1,0 +1,274 @@
+<!-- Topbar Institucional AgroMonitor IoT (Figura 1) -->
+<header class="agromonitor-header">
+  <div class="header-content">
+    <div class="brand-area">
+      <div class="brand-icon">🌱</div>
+      <div>
+        <h1 class="brand-title">AgroMonitor IoT</h1>
+        <p class="brand-sub">Telemetria e Manejo Agronômico de Precisão • UniRV</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <span class="meta-date">Data: {{ dataAtual }}</span>
+    </div>
+  </div>
+</header>
+
+<main class="dashboard-container">
+  <!-- Informações da Fazenda e Título Institucional (Etapa 4/5) -->
+  <div class="section-intro">
+    <h2>{{ titulo }}</h2>
+    <p class="subtitulo">{{ fazenda }}</p>
+  </div>
+
+  <!-- Cards de Indicadores Rápidos (KPIs - Figura 1) -->
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <span class="kpi-label">TOTAL DE SENSORES</span>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ totalSensores }}</span>
+        <span class="kpi-icon">📡</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-ideal">
+      <span class="kpi-label">SOLO EM NÍVEL IDEAL</span>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ totalIdeal }}</span>
+        <span class="kpi-icon">💧</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-alerta">
+      <span class="kpi-label">EM ALERTA / ATENÇÃO</span>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ totalAlerta }}</span>
+        <span class="kpi-icon">⚠️</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-critico">
+      <span class="kpi-label">EM ESTADO CRÍTICO</span>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ totalCritico }}</span>
+        <span class="kpi-icon">🚨</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Barra de Ferramentas: Busca Instantânea, Filtro de Status e Novo Sensor (Figura 1) -->
+  <section class="toolbar">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        [(ngModel)]="termoBusca"
+        placeholder="Buscar por código, talhão ou cultura..."
+        class="input-search"
+      />
+    </div>
+
+    <div class="toolbar-actions">
+      <select [(ngModel)]="filtroStatus" class="select-filter">
+        <option value="todos">Todos os Status</option>
+        <option value="ideal">Ideal</option>
+        <option value="alerta">Alerta</option>
+        <option value="critico">Crítico</option>
+      </select>
+
+      <button (click)="abrirModalNovo()" class="btn-novo">
+        + Novo Sensor
+      </button>
+    </div>
+  </section>
+
+  <!-- Tabela Semântica de Sensores e Telemetria -->
+  <section class="table-card">
+    <table class="tabela-sensores">
+      <thead>
+        <tr>
+          <th>Identificador</th>
+          <th>Talhão / Lavoura</th>
+          <th>Nutrientes N-P-K (mg/kg)</th>
+          <th>Umidade Solo</th>
+          <th>Status Operacional</th>
+          <th>Última Telemetria</th>
+          <th class="th-acoes">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of leiturasFiltradas; let i = index">
+          <td class="col-id"><strong>{{ s.id }}</strong></td>
+          <td>{{ s.talhao || 'Setor ' + (i + 1) }} <span class="badge-cultura">{{ s.cultura }}</span></td>
+          <td class="col-npk">N: {{ s.n }} | P: {{ s.p }} | K: {{ s.k }}</td>
+          <td><strong>{{ Math.round(s.umidade * 100) }}%</strong></td>
+          <td>
+            <span class="badge" [ngClass]="getStatusClass(s.status)">
+              • {{ s.status?.toUpperCase() }}
+            </span>
+          </td>
+          <td class="col-data">{{ s.data }}</td>
+          <td class="col-acoes">
+            <button (click)="abrirModalEdicao(s)" class="btn-icon" title="Editar dados do sensor">✏️</button>
+            <button (click)="excluirSensor(s.id)" class="btn-icon btn-excluir" title="Excluir sensor">🗑️</button>
+          </td>
+        </tr>
+        <tr *ngIf="leiturasFiltradas.length === 0">
+          <td colspan="7" class="sem-registros">
+            Nenhum sensor encontrado com os critérios de filtro pesquisados.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<!-- Modal: Cadastro de Novo Sensor (Figura 2) -->
+<div class="modal-backdrop" *ngIf="modalNovoAberto">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3>Cadastrar Novo Sensor IoT</h3>
+      <button (click)="fecharModalNovo()" class="btn-close">✕</button>
+    </div>
+    <form (ngSubmit)="salvarNovoSensor()">
+      <div class="modal-body">
+        <div class="form-row">
+          <label>Identificador do Sensor</label>
+          <input type="text" [value]="novoSensor.id" disabled class="input-readonly" />
+        </div>
+
+        <div class="form-row">
+          <label>Talhão / Lavoura *</label>
+          <input
+            type="text"
+            [(ngModel)]="novoSensor.talhao"
+            name="talhao"
+            placeholder="Ex: Talhão 09 - Norte"
+            required
+          />
+        </div>
+
+        <div class="form-row">
+          <label>Cultura Agrícola</label>
+          <select [(ngModel)]="novoSensor.cultura" name="cultura">
+            <option value="Soja">Soja</option>
+            <option value="Milho">Milho</option>
+            <option value="Algodão">Algodão</option>
+            <option value="Sorgo">Sorgo</option>
+            <option value="Cana-de-Açúcar">Cana-de-Açúcar</option>
+            <option value="Café">Café</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label>Umidade do Solo (0.00 a 1.00 ou %)</label>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            max="1"
+            [(ngModel)]="novoSensor.umidade"
+            name="umidade"
+            placeholder="Ex: 0.55"
+          />
+          <small class="helper-text">Valor atual: {{ Math.round(novoSensor.umidade * 100) }}%</small>
+        </div>
+
+        <div class="form-row-grid">
+          <div>
+            <label>N (Nitrogênio mg/kg)</label>
+            <input type="number" [(ngModel)]="novoSensor.n" name="n" />
+          </div>
+          <div>
+            <label>P (Fósforo mg/kg)</label>
+            <input type="number" [(ngModel)]="novoSensor.p" name="p" />
+          </div>
+          <div>
+            <label>K (Potássio mg/kg)</label>
+            <input type="number" [(ngModel)]="novoSensor.k" name="k" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" (click)="fecharModalNovo()" class="btn-cancelar">Cancelar</button>
+        <button type="submit" class="btn-salvar">Salvar Sensor</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Alteração de Dados do Sensor (Figura 3) -->
+<div class="modal-backdrop" *ngIf="modalEdicaoAberto">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3>Alterar Dados do Sensor</h3>
+      <button (click)="fecharModalEdicao()" class="btn-close">✕</button>
+    </div>
+    <form (ngSubmit)="salvarEdicaoSensor()">
+      <div class="modal-body">
+        <div class="form-row">
+          <label>Identificador</label>
+          <input type="text" [value]="sensorEmEdicao.id" disabled class="input-readonly" />
+        </div>
+
+        <div class="form-row">
+          <label>Talhão / Área</label>
+          <input type="text" [(ngModel)]="sensorEmEdicao.talhao" name="editTalhao" required />
+        </div>
+
+        <div class="form-row">
+          <label>Cultura Agrícola</label>
+          <select [(ngModel)]="sensorEmEdicao.cultura" name="editCultura">
+            <option value="Soja">Soja</option>
+            <option value="Milho">Milho</option>
+            <option value="Algodão">Algodão</option>
+            <option value="Sorgo">Sorgo</option>
+            <option value="Cana-de-Açúcar">Cana-de-Açúcar</option>
+            <option value="Café">Café</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label>Umidade do Solo (ex: 0.45)</label>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            max="1"
+            [(ngModel)]="sensorEmEdicao.umidade"
+            name="editUmidade"
+          />
+          <small class="helper-text">Umidade ajustada: {{ Math.round(sensorEmEdicao.umidade * 100) }}%</small>
+        </div>
+
+        <div class="form-row-grid">
+          <div>
+            <label>N (mg/kg)</label>
+            <input type="number" [(ngModel)]="sensorEmEdicao.n" name="editN" />
+          </div>
+          <div>
+            <label>P (mg/kg)</label>
+            <input type="number" [(ngModel)]="sensorEmEdicao.p" name="editP" />
+          </div>
+          <div>
+            <label>K (mg/kg)</label>
+            <input type="number" [(ngModel)]="sensorEmEdicao.k" name="editK" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label>Status Operacional</label>
+          <select [(ngModel)]="sensorEmEdicao.status" name="editStatus">
+            <option value="Ideal">Ideal</option>
+            <option value="Alerta">Alerta</option>
+            <option value="Crítico">Crítico</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" (click)="fecharModalEdicao()" class="btn-cancelar">Cancelar</button>
+        <button type="submit" class="btn-salvar">Salvar Alterações</button>
+      </div>
+    </form>
+  </div>
+</div>
