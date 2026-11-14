@@ -8,7 +8,7 @@ Projeto desenvolvido para a disciplina de **Prática de Laboratório — Desenvo
 
 * **Nome:** Maria Eduarda Costa Tolêdo
 * **Matrícula UniRV:** `24107SFT067`
-* **Curso:** Engenharia de Software / Ciência da Computação
+* **Curso:** Engenharia de Software
 * **Instituição:** Universidade de Rio Verde (UniRV)
 
 ---
