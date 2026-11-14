@@ -87,20 +87,24 @@
     <table class="tabela-sensores">
       <thead>
         <tr>
-          <th>Identificador</th>
-          <th>Talhão / Lavoura</th>
-          <th>Nutrientes N-P-K (mg/kg)</th>
-          <th>Umidade Solo</th>
-          <th>Status Operacional</th>
-          <th>Última Telemetria</th>
-          <th class="th-acoes">Ações</th>
+          <th scope="col">Identificador</th>
+          <th scope="col">Talhão / Lavoura</th>
+          <th scope="col">N (mg/kg)</th>
+          <th scope="col">P (mg/kg)</th>
+          <th scope="col">K (mg/kg)</th>
+          <th scope="col">Umidade Solo</th>
+          <th scope="col">Status</th>
+          <th scope="col">Data/Hora</th>
+          <th scope="col" class="th-acoes">Ações</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let s of leiturasFiltradas; let i = index">
           <td class="col-id"><strong>{{ s.id }}</strong></td>
           <td>{{ s.talhao || 'Setor ' + (i + 1) }} <span class="badge-cultura">{{ s.cultura }}</span></td>
-          <td class="col-npk">N: {{ s.n }} | P: {{ s.p }} | K: {{ s.k }}</td>
+          <td class="col-npk">{{ s.n }}</td>
+          <td class="col-npk">{{ s.p }}</td>
+          <td class="col-npk">{{ s.k }}</td>
           <td><strong>{{ Math.round(s.umidade * 100) }}%</strong></td>
           <td>
             <span class="badge" [ngClass]="getStatusClass(s.status)">
@@ -114,7 +118,7 @@
           </td>
         </tr>
         <tr *ngIf="leiturasFiltradas.length === 0">
-          <td colspan="7" class="sem-registros">
+          <td colspan="9" class="sem-registros">
             Nenhum sensor encontrado com os critérios de filtro pesquisados.
           </td>
         </tr>
@@ -130,7 +134,7 @@
       <h3>Cadastrar Novo Sensor IoT</h3>
       <button (click)="fecharModalNovo()" class="btn-close">✕</button>
     </div>
-    <form (ngSubmit)="salvarNovoSensor()">
+    <form #formNovo="ngForm" (ngSubmit)="formNovo.valid && salvarNovoSensor()">
       <div class="modal-body">
         <div class="form-row">
           <label>Identificador do Sensor</label>
@@ -161,12 +165,13 @@
         </div>
 
         <div class="form-row">
-          <label>Umidade do Solo (0.00 a 1.00 ou %)</label>
+          <label>Umidade do Solo (0 a 1)</label>
           <input
             type="number"
             step="0.01"
             min="0"
             max="1"
+            required
             [(ngModel)]="novoSensor.umidade"
             name="umidade"
             placeholder="Ex: 0.55"
@@ -177,15 +182,15 @@
         <div class="form-row-grid">
           <div>
             <label>N (Nitrogênio mg/kg)</label>
-            <input type="number" [(ngModel)]="novoSensor.n" name="n" />
+            <input type="number" min="0" required [(ngModel)]="novoSensor.n" name="n" />
           </div>
           <div>
             <label>P (Fósforo mg/kg)</label>
-            <input type="number" [(ngModel)]="novoSensor.p" name="p" />
+            <input type="number" min="0" required [(ngModel)]="novoSensor.p" name="p" />
           </div>
           <div>
             <label>K (Potássio mg/kg)</label>
-            <input type="number" [(ngModel)]="novoSensor.k" name="k" />
+            <input type="number" min="0" required [(ngModel)]="novoSensor.k" name="k" />
           </div>
         </div>
       </div>
@@ -204,7 +209,7 @@
       <h3>Alterar Dados do Sensor</h3>
       <button (click)="fecharModalEdicao()" class="btn-close">✕</button>
     </div>
-    <form (ngSubmit)="salvarEdicaoSensor()">
+    <form #formEdicao="ngForm" (ngSubmit)="formEdicao.valid && salvarEdicaoSensor()">
       <div class="modal-body">
         <div class="form-row">
           <label>Identificador</label>
@@ -235,6 +240,7 @@
             step="0.01"
             min="0"
             max="1"
+            required
             [(ngModel)]="sensorEmEdicao.umidade"
             name="editUmidade"
           />
@@ -244,15 +250,15 @@
         <div class="form-row-grid">
           <div>
             <label>N (mg/kg)</label>
-            <input type="number" [(ngModel)]="sensorEmEdicao.n" name="editN" />
+            <input type="number" min="0" required [(ngModel)]="sensorEmEdicao.n" name="editN" />
           </div>
           <div>
             <label>P (mg/kg)</label>
-            <input type="number" [(ngModel)]="sensorEmEdicao.p" name="editP" />
+            <input type="number" min="0" required [(ngModel)]="sensorEmEdicao.p" name="editP" />
           </div>
           <div>
             <label>K (mg/kg)</label>
-            <input type="number" [(ngModel)]="sensorEmEdicao.k" name="editK" />
+            <input type="number" min="0" required [(ngModel)]="sensorEmEdicao.k" name="editK" />
           </div>
         </div>
 

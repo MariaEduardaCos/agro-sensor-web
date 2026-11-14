@@ -21,64 +21,55 @@ export class ContainerTabelaComponent implements OnInit {
   termoBusca: string = '';
   filtroStatus: string = 'todos';
 
-  // Coleção de leituras dos sensores (Mock baseado no protótipo Figura 1)
+  // Leituras de teste da etapa 4, com identificação, talhão e cultura.
   leituras: LeituraSolo[] = [
     {
       id: 'SNS-001',
       talhao: 'Talhão 12 - Norte',
       cultura: 'Soja',
-      n: 165,
-      p: 120,
-      k: 148,
-      umidade: 0.62,
-      status: 'Ideal',
-      data: '2026-11-04 11:45'
+      data: '04/11/2026 08:00',
+      n: 150,
+      p: 110,
+      k: 125,
+      umidade: 0.55,
+      status: 'Ideal'
     },
     {
       id: 'SNS-002',
       talhao: 'Talhão 04 - Sul',
       cultura: 'Milho',
-      n: 118,
-      p: 85,
-      k: 95,
-      umidade: 0.38,
-      status: 'Alerta',
-      data: '2026-11-04 11:30'
+      data: '04/11/2026 09:30',
+      n: 142,
+      p: 105,
+      k: 118,
+      umidade: 0.48,
+      status: 'Alerta'
     },
     {
       id: 'SNS-003',
       talhao: 'Talhão 08 - Leste',
       cultura: 'Algodão',
-      n: 70,
-      p: 54,
-      k: 68,
-      umidade: 0.18,
-      status: 'Crítico',
-      data: '2026-11-04 11:15'
+      data: '04/11/2026 11:00',
+      n: 130,
+      p: 98,
+      k: 110,
+      umidade: 0.38,
+      status: 'Crítico'
     },
     {
       id: 'SNS-004',
       talhao: 'Talhão 15 - Oeste',
       cultura: 'Soja',
+      data: '04/11/2026 12:30',
       n: 155,
-      p: 115,
+      p: 112,
       k: 130,
-      umidade: 0.58,
-      status: 'Ideal',
-      data: '2026-11-04 11:00'
-    },
-    {
-      id: 'SNS-005',
-      talhao: 'Talhão 02 - Central',
-      cultura: 'Sorgo',
-      n: 95,
-      p: 75,
-      k: 88,
-      umidade: 0.32,
-      status: 'Alerta',
-      data: '2026-11-04 10:45'
+      umidade: 0.60,
+      status: 'Ideal'
     }
   ];
+
+  private proximoNumeroSensor = this.leituras.length + 1;
 
   // Controle de Modais
   modalNovoAberto: boolean = false;
@@ -133,7 +124,7 @@ export class ContainerTabelaComponent implements OnInit {
 
   // Ações de Modal: Novo Sensor
   abrirModalNovo(): void {
-    const proximoNumero = (this.leituras.length + 1).toString().padStart(3, '0');
+    const proximoNumero = String(this.proximoNumeroSensor).padStart(3, '0');
     this.novoSensor = {
       id: `SNS-${proximoNumero}`,
       talhao: '',
@@ -143,7 +134,10 @@ export class ContainerTabelaComponent implements OnInit {
       k: 120,
       umidade: 0.50,
       status: 'Ideal',
-      data: new Date().toISOString().replace('T', ' ').substring(0, 16)
+      data: new Date().toLocaleString('pt-BR', {
+        dateStyle: 'short',
+        timeStyle: 'short'
+      }).replace(', ', ' ')
     };
     this.modalNovoAberto = true;
   }
@@ -157,7 +151,7 @@ export class ContainerTabelaComponent implements OnInit {
       alert('Por favor, informe a identificação do talhão/área.');
       return;
     }
-    // Determina o status caso o usuário não tenha escolhido explicitamente
+    // Classifica o novo sensor pela umidade inicial.
     if (this.novoSensor.umidade < 0.25) {
       this.novoSensor.status = 'Crítico';
     } else if (this.novoSensor.umidade < 0.45) {
@@ -166,7 +160,8 @@ export class ContainerTabelaComponent implements OnInit {
       this.novoSensor.status = 'Ideal';
     }
 
-    this.leituras.unshift({ ...this.novoSensor });
+    this.leituras.unshift({ ...this.novoSensor, talhao: this.novoSensor.talhao.trim() });
+    this.proximoNumeroSensor++;
     this.modalNovoAberto = false;
   }
 
@@ -181,18 +176,15 @@ export class ContainerTabelaComponent implements OnInit {
   }
 
   salvarEdicaoSensor(): void {
+    const talhao = this.sensorEmEdicao.talhao?.trim();
+    if (!talhao) {
+      alert('Por favor, informe a identificação do talhão/área.');
+      return;
+    }
+
     const idx = this.leituras.findIndex(s => s.id === this.sensorEmEdicao.id);
     if (idx !== -1) {
-      // Atualização automática ou manual do status
-      if (this.sensorEmEdicao.umidade < 0.25) {
-        this.sensorEmEdicao.status = 'Crítico';
-      } else if (this.sensorEmEdicao.umidade < 0.45) {
-        this.sensorEmEdicao.status = 'Alerta';
-      } else {
-        this.sensorEmEdicao.status = 'Ideal';
-      }
-
-      this.leituras[idx] = { ...this.sensorEmEdicao };
+      this.leituras[idx] = { ...this.sensorEmEdicao, talhao };
     }
     this.modalEdicaoAberto = false;
   }

@@ -7,7 +7,7 @@ Projeto desenvolvido para a disciplina de **Prática de Laboratório — Desenvo
 ## 👤 Identificação do Aluno
 
 * **Nome:** Maria Eduarda Costa Tolêdo
-* **Matrícula UniRV:** `[DIGITE_SUA_MATRICULA_AQUI]`
+* **Matrícula UniRV:** `24107SFT067`
 * **Curso:** Engenharia de Software / Ciência da Computação
 * **Instituição:** Universidade de Rio Verde (UniRV)
 
@@ -15,7 +15,7 @@ Projeto desenvolvido para a disciplina de **Prática de Laboratório — Desenvo
 
 ## 🎯 Sobre o Projeto
 
-Aplicação web desenvolvida em **Angular** com **TypeScript** para monitoramento agrícola de precisão (IoT), exibindo métricas físico-químicas de solo (Nitrogênio, Fósforo, Potássio, Umidade e Status Operacional) em tempo real por meio de componentes semânticos, tipados e estilizados.
+Aplicação web desenvolvida em **Angular** com **TypeScript** para monitoramento agrícola de precisão (IoT), exibindo métricas físico-químicas de solo (Nitrogênio, Fósforo, Potássio, Umidade e Status Operacional) com dados de teste. O painel permite buscar, filtrar, cadastrar, editar e excluir sensores durante a sessão.
 
 ### Principais Tecnologias e Conceitos Aplicados:
 * **SPA (Single Page Application)** com Angular moderno;
@@ -38,13 +38,13 @@ Abaixo está a captura de tela da tabela de sensores renderizada no navegador em
 ## 🚀 Instruções de Instalação e Execução
 
 ### Pré-requisitos
-* **Node.js** (versão 18 ou superior)
-* **npm** ou **yarn**
-* **Angular CLI** instalado globalmente (`npm install -g @angular/cli`)
+* **Node.js** (`^22.22.3`, `^24.15.0` ou `>=26.0.0`)
+* **npm**
+* **Angular CLI** instalado globalmente (`npm install -g @angular/cli@22`)
 
 ### 1. Clonar o repositório
 ```bash
-git clone https://github.com/<seu-usuario>/agro-sensor-web.git
+git clone https://github.com/MariaEduardaCos/agro-sensor.git agro-sensor-web
 cd agro-sensor-web
 ```
 
