@@ -36,6 +36,31 @@ describe('ContainerTabelaComponent', () => {
     expect(component.leituras[0].status).toBe('Crítico');
   });
 
+  it('shows today in the header and refreshes the sensor date after editing', () => {
+    const sensor = component.leituras[0];
+    component.abrirModalEdicao(sensor);
+    component.salvarEdicaoSensor();
+
+    expect(component.dataAtual).toBe(new Date().toLocaleDateString('pt-BR'));
+    expect(component.leituras[0].data).toMatch(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/);
+    expect(component.leituras[0].data).toContain(component.dataAtual);
+  });
+
+  it('uses today for the sample sensor readings', () => {
+    const dataHoje = component.dataAtual;
+
+    expect(component.leituras.every(sensor => sensor.data.startsWith(dataHoje))).toBe(true);
+  });
+
+  it('saves a new sensor with the current date and time', () => {
+    component.abrirModalNovo();
+    component.novoSensor.talhao = 'Talhão novo';
+    component.salvarNovoSensor();
+
+    expect(component.leituras[0].data).toMatch(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/);
+    expect(component.leituras[0].data).toContain(component.dataAtual);
+  });
+
   it('keeps sensor identifiers unique after deletion and registration', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     try {

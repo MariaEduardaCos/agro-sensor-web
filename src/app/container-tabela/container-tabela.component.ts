@@ -13,7 +13,10 @@ import { LeituraSolo } from '../interfaces/sensores.interface';
 export class ContainerTabelaComponent implements OnInit {
   titulo: string = 'Painel de Monitoramento IoT - Sensores de Solo';
   fazenda: string = 'Fazenda Modelo UniRV - Setor de Irrigação 04';
-  dataAtual: string = '04/11/2026';
+
+  get dataAtual(): string {
+    return new Date().toLocaleDateString('pt-BR');
+  }
 
   Math = Math;
 
@@ -27,7 +30,7 @@ export class ContainerTabelaComponent implements OnInit {
       id: 'SNS-001',
       talhao: 'Talhão 12 - Norte',
       cultura: 'Soja',
-      data: '04/11/2026 08:00',
+      data: this.formatarDataHoraEmHorario(8, 0),
       n: 150,
       p: 110,
       k: 125,
@@ -38,7 +41,7 @@ export class ContainerTabelaComponent implements OnInit {
       id: 'SNS-002',
       talhao: 'Talhão 04 - Sul',
       cultura: 'Milho',
-      data: '04/11/2026 09:30',
+      data: this.formatarDataHoraEmHorario(9, 30),
       n: 142,
       p: 105,
       k: 118,
@@ -49,7 +52,7 @@ export class ContainerTabelaComponent implements OnInit {
       id: 'SNS-003',
       talhao: 'Talhão 08 - Leste',
       cultura: 'Algodão',
-      data: '04/11/2026 11:00',
+      data: this.formatarDataHoraEmHorario(11, 0),
       n: 130,
       p: 98,
       k: 110,
@@ -60,7 +63,7 @@ export class ContainerTabelaComponent implements OnInit {
       id: 'SNS-004',
       talhao: 'Talhão 15 - Oeste',
       cultura: 'Soja',
-      data: '04/11/2026 12:30',
+      data: this.formatarDataHoraEmHorario(12, 30),
       n: 155,
       p: 112,
       k: 130,
@@ -134,10 +137,7 @@ export class ContainerTabelaComponent implements OnInit {
       k: 120,
       umidade: 0.50,
       status: 'Ideal',
-      data: new Date().toLocaleString('pt-BR', {
-        dateStyle: 'short',
-        timeStyle: 'short'
-      }).replace(', ', ' ')
+      data: this.formatarDataHoraAtual()
     };
     this.modalNovoAberto = true;
   }
@@ -151,6 +151,8 @@ export class ContainerTabelaComponent implements OnInit {
       alert('Por favor, informe a identificação do talhão/área.');
       return;
     }
+    this.novoSensor.data = this.formatarDataHoraAtual();
+
     // Classifica o novo sensor pela umidade inicial.
     if (this.novoSensor.umidade < 0.25) {
       this.novoSensor.status = 'Crítico';
@@ -184,9 +186,30 @@ export class ContainerTabelaComponent implements OnInit {
 
     const idx = this.leituras.findIndex(s => s.id === this.sensorEmEdicao.id);
     if (idx !== -1) {
-      this.leituras[idx] = { ...this.sensorEmEdicao, talhao };
+      this.leituras[idx] = {
+        ...this.sensorEmEdicao,
+        talhao,
+        data: this.formatarDataHoraAtual()
+      };
     }
     this.modalEdicaoAberto = false;
+  }
+
+  private formatarDataHoraAtual(): string {
+    return this.formatarDataHora(new Date());
+  }
+
+  private formatarDataHoraEmHorario(horas: number, minutos: number): string {
+    const data = new Date();
+    data.setHours(horas, minutos, 0, 0);
+    return this.formatarDataHora(data);
+  }
+
+  private formatarDataHora(data: Date): string {
+    return data.toLocaleString('pt-BR', {
+      dateStyle: 'short',
+      timeStyle: 'short'
+    }).replace(', ', ' ');
   }
 
   // Exclusão com confirmação
